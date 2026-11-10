@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pegase:schema:pont:1",
+  "title": "Messages du pont pegase-pont/1 entre une interface d'extension (iframe isolée) et le Core",
+  "description": "Voir docs/extensions/extension-api.md, section Pont. Taille maximale d'un message : 256 Kio, hors fichiers transférés (Blob).",
+  "oneOf": [
+    { "$ref": "#/$defs/requete" },
+    { "$ref": "#/$defs/reponse" },
+    { "$ref": "#/$defs/signal" },
+    { "$ref": "#/$defs/notification" }
+  ],
+  "$defs": {
+    "entete": {
+      "type": "object",
+      "required": ["pont"],
+      "properties": { "pont": { "const": "pegase-pont/1" } }
+    },
+    "requete": {
+      "description": "Interface → Core : appel d'une méthode de l'API",
+      "allOf": [{ "$ref": "#/$defs/entete" }],
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pont", "type", "id", "methode"],
+      "properties": {
+        "pont": true,
+        "type": { "const": "requete" },
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,36}$" },
+        "methode": {
+          "enum": [
+            "contexte.lire",
+            "utilisateur.profil",
+            "permissions.verifier",
+            "parametres.lire",
+            "stockage.lire", "stockage.lister", "stockage.ecrire", "stockage.supprimer",
+            "fichiers.deposer", "fichiers.lire",
+            "projets.lister", "projets.lire", "projets.creer", "projets.modifier", "projets.supprimer", "projets.publier", "parcours.lire",
+            "resultats.lister", "resultats.enregistrer",
+            "evenements.lister", "evenements.acquitter", "evenements.publier",
+            "ressources.lire"
+          ]
+        },
+        "parametres": { "type": "object" },
+        "fichier": { "description": "Blob transféré avec le message (fichiers.deposer seulement)" }
+      }
+    },
+    "reponse": {
+      "description": "Core → interface : résultat d'une requête, même id",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pont", "type", "id", "ok"],
+      "properties": {
+        "pont": { "const": "pegase-pont/1" },
+        "type": { "const": "reponse" },
+        "id": { "type": "string" },
+        "ok": { "type": "boolean" },
+        "resultat": {},
+        "erreur": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": {
+              "enum": [
+                "non_connecte", "jeton_expire", "permission_refusee", "droit_utilisateur_refuse", "extension_inactive",
+                "introuvable", "conflit", "quota_depasse", "trop_volumineux", "invalide",
+                "debit_depasse", "annule_par_utilisateur", "runtime_indisponible", "erreur_interne"
+              ]
+            },
+            "message": { "type": "string", "maxLength": 500 },
+            "details": { "type": "object" }
+          }
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "ok": { "const": false } } }, "then": { "required": ["erreur"] } }
+      ]
+    },
+    "signal": {
+      "description": "Interface → Core : demandes d'interface sans réponse de données",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pont", "type", "signal"],
+      "properties": {
+        "pont": { "const": "pegase-pont/1" },
+        "type": { "const": "signal" },
+        "signal": { "enum": ["pret", "hauteur", "naviguer", "connexion", "message", "titre"] },
+        "hauteur": { "type": "integer", "minimum": 100, "maximum": 20000 },
+        "page": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,39}$" },
+        "parametre": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+        "niveau": { "enum": ["information", "succes", "alerte"] },
+        "texte": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "notification": {
+      "description": "Core → interface : contexte initial et changements",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pont", "type", "nom"],
+      "properties": {
+        "pont": { "const": "pegase-pont/1" },
+        "type": { "const": "notification" },
+        "nom": { "enum": ["contexte", "parametres", "desactivee"] },
+        "donnees": { "type": "object" }
+      }
+    }
+  }
+}

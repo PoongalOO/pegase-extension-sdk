@@ -1,0 +1,31 @@
+{
+  "name": "@pegase/extension-sdk",
+  "version": "0.1.0",
+  "description": "SDK des extensions de Pégase : client du pont pegase-pont/1, types de l'API v1, validation du manifeste et construction des artefacts .pegext",
+  "license": "MIT",
+  "author": "PoongalOO",
+  "repository": { "type": "git", "url": "git+https://github.com/PoongalOO/pegase-extension-sdk.git" },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./schemas/*": "./schemas/*"
+  },
+  "bin": { "pegase-extension": "./dist/cli/cli.js" },
+  "files": ["dist", "schemas", "README.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

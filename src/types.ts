@@ -8,7 +8,7 @@ export const PONT = 'pegase-pont/1';
 export type CodeErreur =
   | 'non_connecte' | 'jeton_expire' | 'permission_refusee' | 'droit_utilisateur_refuse' | 'extension_inactive'
   | 'introuvable' | 'conflit' | 'quota_depasse' | 'trop_volumineux' | 'invalide' | 'debit_depasse'
-  | 'annule_par_utilisateur' | 'runtime_indisponible' | 'erreur_interne';
+  | 'annule_par_utilisateur' | 'runtime_indisponible' | 'erreur_interne' | 'erreur_reseau';
 
 export type Niveau = 'connecte' | 'valide' | 'administration';
 
@@ -20,6 +20,7 @@ export interface Contexte {
   joueur?: { session: string; pseudo: string | null; parcours: string };
   permissions: string[];
   page: string;
+  /** paramètre d'adresse de la page, ou point d'entrée du parcours ouvert par le joueur (/extensions/joueur/{code}/{parametre}) */
   parametre?: string | null;
   langue: 'fr';
 }
@@ -42,12 +43,40 @@ export interface PageDocuments<T = unknown> {
   suivant: string | null;
 }
 
+/** Image (fichiers:deposer, réencodée en PNG ou JPEG), son ou vidéo (fichiers:medias, 15 Mo au plus) */
 export interface Fichier {
   id: string;
-  type: 'image/png' | 'image/jpeg' | 'image/webp';
+  type: 'image/png' | 'image/jpeg' | 'audio/mpeg' | 'audio/mp4' | 'audio/webm' | 'video/mp4' | 'video/webm';
+  /** depuis Pégase 1.9.0 */
+  nature?: 'image' | 'audio' | 'video';
   taille: number;
-  largeur: number;
-  hauteur: number;
+  /** images seulement */
+  largeur?: number;
+  hauteur?: number;
+  /** sons et vidéos : nom du fichier déposé, nettoyé */
+  nom?: string | null;
+  /** sons et vidéos : lecture possible avant la fin du téléchargement (MP4 « faststart ») */
+  progressif?: boolean;
+  cree?: string;
+}
+
+/** Adresse signée et temporaire d'une image, d'un son ou d'une vidéo, pour <img>, <audio> ou <video> */
+export interface AdresseFichier {
+  adresse: string;
+  /** date ISO 8601 ; au moins 4 heures après la demande */
+  expire: string;
+}
+
+/** Place utilisée et quota, en octets, du compte connecté et des données partagées */
+export interface Quota {
+  compte: { utilise: number; quota: number } | null;
+  partage: { utilise: number; quota: number };
+}
+
+/** Point d'entrée d'un parcours publié : ouvert par l'adresse du joueur suivie de son paramètre, imprimé en QR code */
+export interface Acces {
+  parametre: string;
+  libelle: string;
 }
 
 export interface Publication {
@@ -55,6 +84,8 @@ export interface Publication {
   version: number;
   publie: string;
   adresse?: string;
+  /** page des QR codes du parcours (depuis Pégase 1.9.0) */
+  codes_qr?: string;
 }
 
 export interface Projet<T = unknown> {
@@ -88,7 +119,7 @@ export type ValeurParametre = string | number | boolean | null;
 export type Methode =
   | 'contexte.lire' | 'utilisateur.profil' | 'permissions.verifier' | 'parametres.lire'
   | 'stockage.lire' | 'stockage.lister' | 'stockage.ecrire' | 'stockage.supprimer'
-  | 'fichiers.deposer' | 'fichiers.lire'
+  | 'fichiers.deposer' | 'fichiers.lire' | 'fichiers.adresse' | 'fichiers.lister' | 'fichiers.supprimer' | 'quota.lire'
   | 'projets.lister' | 'projets.lire' | 'projets.creer' | 'projets.modifier' | 'projets.supprimer' | 'projets.publier'
   | 'parcours.lire' | 'resultats.lister' | 'resultats.enregistrer'
   | 'evenements.lister' | 'evenements.acquitter' | 'evenements.publier'

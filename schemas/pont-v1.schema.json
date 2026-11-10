@@ -32,7 +32,8 @@
             "permissions.verifier",
             "parametres.lire",
             "stockage.lire", "stockage.lister", "stockage.ecrire", "stockage.supprimer",
-            "fichiers.deposer", "fichiers.lire",
+            "fichiers.deposer", "fichiers.lire", "fichiers.adresse", "fichiers.lister", "fichiers.supprimer",
+            "quota.lire",
             "projets.lister", "projets.lire", "projets.creer", "projets.modifier", "projets.supprimer", "projets.publier", "parcours.lire",
             "resultats.lister", "resultats.enregistrer",
             "evenements.lister", "evenements.acquitter", "evenements.publier",
@@ -99,7 +100,7 @@
       "properties": {
         "pont": { "const": "pegase-pont/1" },
         "type": { "const": "notification" },
-        "nom": { "enum": ["contexte", "parametres", "desactivee"] },
+        "nom": { "enum": ["contexte", "parametres", "desactivee", "progression"] },
         "donnees": { "type": "object" }
       }
     }

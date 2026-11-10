@@ -32,6 +32,14 @@ interface Attente {
   resoudre: (valeur: unknown) => void;
   rejeter: (erreur: ErreurPegase) => void;
   minuterie: ReturnType<typeof setTimeout>;
+  delai: number;
+  progression?: (envoye: number, total: number) => void;
+}
+
+/** Options d'une requête : délai sans nouvelle du Core (relancé à chaque progression), suivi d'un envoi */
+export interface OptionsRequete {
+  delai?: number;
+  progression?: (envoye: number, total: number) => void;
 }
 
 /**
@@ -66,22 +74,29 @@ export class Pont {
     return this.contexte;
   }
 
-  appeler<T>(methode: Methode, parametres: Record<string, unknown> = {}, fichier?: Blob): Promise<T> {
+  appeler<T>(methode: Methode, parametres: Record<string, unknown> = {}, fichier?: Blob, options: OptionsRequete = {}): Promise<T> {
     const id = 'r' + (++this.suivant).toString(36);
+    const delai = options.delai ?? Pont.DELAI;
     return new Promise<T>((resoudre, rejeter) => {
-      const minuterie = setTimeout(() => {
-        this.attentes.delete(id);
-        rejeter(new ErreurPegase('erreur_interne', 'Pas de réponse du Core.'));
-      }, Pont.DELAI);
-      // Node (tests) : la minuterie ne retient pas le processus
-      (minuterie as { unref?: () => void }).unref?.();
-      this.attentes.set(id, { resoudre: resoudre as (valeur: unknown) => void, rejeter, minuterie });
+      const minuterie = this.minuterie(id, delai, rejeter);
+      this.attentes.set(id, { resoudre: resoudre as (valeur: unknown) => void, rejeter, minuterie, delai, progression: options.progression });
       const message: MessagePont = { pont: PONT, type: 'requete', id, methode, parametres };
       if (fichier !== undefined) {
         message.fichier = fichier;
       }
       this.canal.envoyer(message);
     });
+  }
+
+  private minuterie(id: string, delai: number, rejeter: (erreur: ErreurPegase) => void): ReturnType<typeof setTimeout> {
+    const minuterie = setTimeout(() => {
+      this.attentes.delete(id);
+      rejeter(new ErreurPegase('erreur_interne', 'Pas de réponse du Core.'));
+    }, delai);
+    // Node (tests) : la minuterie ne retient pas le processus
+    (minuterie as { unref?: () => void }).unref?.();
+
+    return minuterie;
   }
 
   signal(signal: NomSignal, donnees: Record<string, unknown> = {}): void {
@@ -115,6 +130,16 @@ export class Pont {
     }
     if (m.type === 'notification' && typeof m.nom === 'string') {
       const donnees = (m.donnees ?? {}) as Record<string, unknown>;
+      if (m.nom === 'progression') {
+        // envoi d'un fichier en cours : rappel de la requête, délai relancé
+        const attente = typeof donnees.requete === 'string' ? this.attentes.get(donnees.requete) : undefined;
+        if (attente && typeof donnees.envoye === 'number' && typeof donnees.total === 'number') {
+          clearTimeout(attente.minuterie);
+          attente.minuterie = this.minuterie(donnees.requete as string, attente.delai, attente.rejeter);
+          attente.progression?.(donnees.envoye, donnees.total);
+        }
+        return;
+      }
       if (m.nom === 'contexte') {
         if (this.contexte === null) {
           this.contexte = donnees as unknown as Contexte;

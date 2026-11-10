@@ -86,3 +86,47 @@ test('0.2.0 : pseudo du joueur transmis, titre du parcours', async () => {
   c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: { code: 'ext-a2b3c4d5', titre: 'Les volcans', version: 1, contenu: {} } });
   assert.equal((await lecture).titre, 'Les volcans');
 });
+
+test('0.3.0 : progression de l\'envoi, adresse signée et repli data:, liste, quota, points d\'entrée', async () => {
+  const c = canal();
+  const pegase = new Pegase(c);
+  const progressions = [];
+  const depot = pegase.fichiers.deposer(new Blob(['x'], { type: 'video/mp4' }), { progression: (envoye, total) => progressions.push([envoye, total]) });
+  const requete = c.envoyes.at(-1);
+  c.livrer({ pont: PONT, type: 'notification', nom: 'progression', donnees: { requete: requete.id, envoye: 5, total: 10 } });
+  c.livrer({ pont: PONT, type: 'notification', nom: 'progression', donnees: { requete: 'autre', envoye: 1, total: 2 } });
+  c.livrer({ pont: PONT, type: 'reponse', id: requete.id, ok: true, resultat: { id: 'V', type: 'video/mp4', nature: 'video', taille: 10 } });
+  assert.equal((await depot).nature, 'video');
+  assert.deepEqual(progressions, [[5, 10]]);
+
+  const adresse = pegase.fichiers.adresse('V');
+  assert.deepEqual([c.envoyes.at(-1).methode, c.envoyes.at(-1).parametres], ['fichiers.adresse', { id: 'V' }]);
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: { adresse: '/extensions/medias/V/1/s', expire: '' } });
+  assert.equal(await adresse, '/extensions/medias/V/1/s');
+
+  // Core antérieur à 1.9.0 : méthode inconnue, image relue en adresse data: (FileReader simulé sous Node)
+  globalThis.FileReader ??= class {
+    readAsDataURL(blob) {
+      blob.arrayBuffer().then((octets) => { this.result = `data:${blob.type};base64,` + Buffer.from(octets).toString('base64'); this.onload(); });
+    }
+  };
+  const ancienne = pegase.fichiers.adresse('I');
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: false, erreur: { code: 'invalide', message: 'Méthode inconnue.' } });
+  await new Promise((fin) => setTimeout(fin, 0));
+  assert.equal(c.envoyes.at(-1).methode, 'fichiers.lire');
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: new Blob(['x'], { type: 'image/png' }) });
+  assert.match(await ancienne, /^data:image\/png;base64,/);
+
+  const liste = pegase.fichiers.lister();
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: { fichiers: [{ id: 'V' }] } });
+  assert.deepEqual(await liste, [{ id: 'V' }]);
+  const quota = pegase.quota();
+  assert.equal(c.envoyes.at(-1).methode, 'quota.lire');
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: { compte: { utilise: 1, quota: 2 }, partage: { utilise: 0, quota: 1 } } });
+  assert.equal((await quota).compte.quota, 2);
+
+  pegase.projets.publier('P', { acces: [{ parametre: '1', libelle: 'Œuvre 1' }] }).catch(() => {});
+  assert.deepEqual(c.envoyes.at(-1).parametres, { id: 'P', acces: [{ parametre: '1', libelle: 'Œuvre 1' }] });
+  pegase.projets.publier('P').catch(() => {});
+  assert.deepEqual(c.envoyes.at(-1).parametres, { id: 'P' });
+});

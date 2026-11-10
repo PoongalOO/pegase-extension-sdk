@@ -277,7 +277,8 @@
             }
           }
         },
-        "quota_mo": { "type": "integer", "minimum": 1, "maximum": 500, "description": "Quota demandé (données et fichiers) ; l'administrateur peut le réduire" },
+        "quota_mo": { "type": "integer", "minimum": 1, "maximum": 500, "description": "Quota demandé pour les données partagées (collections partagées, résultats des joueurs) ; l'administrateur peut le réduire" },
+        "quota_compte_mo": { "type": "integer", "minimum": 1, "maximum": 20480, "description": "Quota demandé pour chaque compte (documents privés, images, sons, vidéos, projets, parcours publiés), quota_mo à défaut ; l'administrateur le règle pour tous les comptes ou pour un compte" },
         "migrations": {
           "type": "array",
           "maxItems": 50,
@@ -357,7 +358,7 @@
           "enum": [
             "utilisateur:profil", "utilisateur:institution",
             "stockage:prive", "stockage:partage",
-            "fichiers:deposer",
+            "fichiers:deposer", "fichiers:medias",
             "projets:lire", "projets:creer", "projets:modifier", "projets:supprimer",
             "parcours:publier", "resultats:lire",
             "evenements:publier"

@@ -1,11 +1,11 @@
 import { Canal, canalNavigateur, ErreurPegase, Pont } from './pont.js';
 import type {
-  Contexte, Document, Evenement, Fichier, PageDocuments, Profil, Projet, Publication, Resultat, ValeurParametre,
+  Acces, AdresseFichier, Contexte, Document, Evenement, Fichier, PageDocuments, Profil, Projet, Publication, Quota, Resultat, ValeurParametre,
 } from './types.js';
 
 export * from './types.js';
 export { ErreurPegase, Pont, canalNavigateur } from './pont.js';
-export type { Canal } from './pont.js';
+export type { Canal, OptionsRequete } from './pont.js';
 
 /** Collection de documents JSON déclarée dans le manifeste (stockage.collections) */
 export class Collection<T = unknown> {
@@ -77,11 +77,40 @@ export class Pegase {
   };
 
   readonly fichiers = {
-    deposer: (fichier: Blob): Promise<Fichier> => this.pont.appeler('fichiers.deposer', {}, fichier),
+    /**
+     * Image (fichiers:deposer) ou son ou vidéo (fichiers:medias, 15 Mo au plus), reconnus d'après leur contenu ;
+     * progression : suivi de l'envoi (Pégase 1.9.0 et suivants)
+     */
+    deposer: (fichier: Blob, options: { progression?: (envoye: number, total: number) => void } = {}): Promise<Fichier> =>
+      this.pont.appeler('fichiers.deposer', {}, fichier, { delai: 120_000, progression: options.progression }),
     lire: (id: string): Promise<Blob> => this.pont.appeler('fichiers.lire', { id }),
-    /** Image prête à afficher (adresse data:) : une adresse blob: créée dans l'iframe, d'origine opaque, ne se charge pas */
-    adresse: async (id: string): Promise<string> => adresseData(await this.pont.appeler<Blob>('fichiers.lire', { id })),
+    /**
+     * Adresse à charger dans <img>, <audio> ou <video> : adresse signée et temporaire servie par le Core (lecture par
+     * plages) ; avec un Core antérieur à 1.9.0, image en adresse data: (une adresse blob: créée dans l'iframe, d'origine
+     * opaque, ne se charge pas)
+     */
+    adresse: async (id: string): Promise<string> => {
+      try {
+        return (await this.pont.appeler<AdresseFichier>('fichiers.adresse', { id })).adresse;
+      } catch (erreur) {
+        if (erreur instanceof ErreurPegase && erreur.code === 'invalide') {
+          return adresseData(await this.pont.appeler<Blob>('fichiers.lire', { id }));
+        }
+        throw erreur;
+      }
+    },
+    /** Adresse signée et son échéance (au moins 4 heures) */
+    adresseSignee: (id: string): Promise<AdresseFichier> => this.pont.appeler('fichiers.adresse', { id }),
+    /** Images, sons et vidéos déposés par le compte connecté, du plus récent au plus ancien */
+    lister: async (): Promise<Fichier[]> => (await this.pont.appeler<{ fichiers: Fichier[] }>('fichiers.lister')).fichiers,
+    /** Suppression par le compte qui l'a déposé */
+    supprimer: (id: string): Promise<null> => this.pont.appeler('fichiers.supprimer', { id }),
   };
+
+  /** Place utilisée et quota du compte connecté (réglé par l'administrateur), et des données partagées */
+  quota(): Promise<Quota> {
+    return this.pont.appeler('quota.lire');
+  }
 
   readonly projets = {
     lister: async <T = unknown>(): Promise<Projet<T>[]> => (await this.pont.appeler<{ projets: Projet<T>[] }>('projets.lister')).projets,
@@ -91,7 +120,12 @@ export class Pegase {
       this.pont.appeler('projets.modifier', { id, ...projet }),
     /** Le Core demande confirmation à l'utilisateur ; refus : erreur « annule_par_utilisateur » */
     supprimer: (id: string): Promise<null> => this.pont.appeler('projets.supprimer', { id }),
-    publier: (id: string): Promise<Publication> => this.pont.appeler('projets.publier', { id }),
+    /**
+     * Le Core demande confirmation à l'utilisateur, puis affiche le lien vers la page des QR codes du parcours ;
+     * acces : points d'entrée (une œuvre…), ouverts par /extensions/joueur/{code}/{parametre}, 300 au plus
+     */
+    publier: (id: string, options: { acces?: Acces[] } = {}): Promise<Publication> =>
+      this.pont.appeler('projets.publier', options.acces === undefined ? { id } : { id, acces: options.acces }),
   };
 
   readonly parcours = {

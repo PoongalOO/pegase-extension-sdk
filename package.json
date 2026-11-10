@@ -1,6 +1,6 @@
 {
   "name": "@pegase/extension-sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "SDK des extensions de Pégase : client du pont pegase-pont/1, types de l'API v1, validation du manifeste et construction des artefacts .pegext",
   "license": "MIT",
   "author": "PoongalOO",

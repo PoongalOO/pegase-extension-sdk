@@ -103,8 +103,11 @@ export class Pont {
     this.canal.envoyer({ pont: PONT, type: 'signal', signal, ...donnees });
   }
 
-  /** Notifications du Core : « parametres » (réglages modifiés), « desactivee » (extension désactivée) */
-  surNotification(nom: 'parametres' | 'desactivee', rappel: (donnees: Record<string, unknown>) => void): void {
+  /**
+   * Notifications du Core : « parametres » (réglages modifiés), « desactivee » (extension désactivée), « parametre »
+   * (joueur du lecteur : point d'entrée lu dans un QR code pendant la partie)
+   */
+  surNotification(nom: 'parametres' | 'desactivee' | 'parametre', rappel: (donnees: Record<string, unknown>) => void): void {
     this.abonnes.set(nom, [...(this.abonnes.get(nom) ?? []), rappel]);
   }
 

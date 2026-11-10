@@ -23,6 +23,8 @@ export interface Contexte {
   /** paramètre d'adresse de la page, ou point d'entrée du parcours ouvert par le joueur (/extensions/joueur/{code}/{parametre}) */
   parametre?: string | null;
   langue: 'fr';
+  /** joueur ouvert par le lecteur (web ou PégaseLab) à partir du paquet gardé sur l'appareil, avec ou sans réseau */
+  horsLigne?: boolean;
 }
 
 export interface Profil {

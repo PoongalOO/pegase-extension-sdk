@@ -129,7 +129,13 @@ export class Pegase {
   };
 
   readonly parcours = {
-    lire: <T = unknown>(): Promise<{ code: string; titre: string; version: number; contenu: T }> => this.pont.appeler('parcours.lire'),
+    lire: <T = unknown>(): Promise<{ code: string; titre: string; version: number; contenu: T; acces?: Acces[] }> => this.pont.appeler('parcours.lire'),
+    /**
+     * Point d'entrée choisi pendant la partie : QR code d'une œuvre scanné par le lecteur (bouton « Scanner un code »),
+     * paramètre de /extensions/joueur/{code}/{parametre} ; null pour l'accueil du parcours
+     */
+    surPointDEntree: (rappel: (parametre: string | null) => void): void =>
+      this.pont.surNotification('parametre', (donnees) => rappel(typeof donnees.parametre === 'string' && donnees.parametre !== '' ? donnees.parametre : null)),
   };
 
   readonly resultats = {

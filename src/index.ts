@@ -79,6 +79,8 @@ export class Pegase {
   readonly fichiers = {
     deposer: (fichier: Blob): Promise<Fichier> => this.pont.appeler('fichiers.deposer', {}, fichier),
     lire: (id: string): Promise<Blob> => this.pont.appeler('fichiers.lire', { id }),
+    /** Image prête à afficher (adresse data:) : une adresse blob: créée dans l'iframe, d'origine opaque, ne se charge pas */
+    adresse: async (id: string): Promise<string> => adresseData(await this.pont.appeler<Blob>('fichiers.lire', { id })),
   };
 
   readonly projets = {
@@ -93,12 +95,13 @@ export class Pegase {
   };
 
   readonly parcours = {
-    lire: <T = unknown>(): Promise<{ code: string; version: number; contenu: T }> => this.pont.appeler('parcours.lire'),
+    lire: <T = unknown>(): Promise<{ code: string; titre: string; version: number; contenu: T }> => this.pont.appeler('parcours.lire'),
   };
 
   readonly resultats = {
     lister: async (projet: string): Promise<Resultat[]> => (await this.pont.appeler<{ resultats: Resultat[] }>('resultats.lister', { projet })).resultats,
-    enregistrer: (resultat: { score: number; termine?: boolean; details?: Record<string, unknown> }): Promise<null> =>
+    /** Résultat de la session de jeu (mode joueur) : créé puis mis à jour ; pseudo facultatif, 40 caractères */
+    enregistrer: (resultat: { score: number; termine?: boolean; pseudo?: string; details?: Record<string, unknown> }): Promise<{ enregistre: boolean }> =>
       this.pont.appeler('resultats.enregistrer', resultat),
   };
 
@@ -151,6 +154,16 @@ export class Pegase {
   surDesactivation(rappel: () => void): void {
     this.pont.surNotification('desactivee', rappel);
   }
+}
+
+/** Contenu d'un Blob en adresse data: (FileReader) */
+export function adresseData(blob: Blob): Promise<string> {
+  return new Promise((resoudre, rejeter) => {
+    const lecteur = new FileReader();
+    lecteur.onload = () => resoudre(String(lecteur.result));
+    lecteur.onerror = () => rejeter(lecteur.error);
+    lecteur.readAsDataURL(blob);
+  });
 }
 
 let instance: Pegase | null = null;

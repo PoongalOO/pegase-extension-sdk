@@ -18,7 +18,7 @@ Chaque version est publiée comme archive npm attachée à sa release GitHub (em
 `package-lock.json` du projet qui l'installe) :
 
 ```sh
-npm install --save-dev https://github.com/PoongalOO/pegase-extension-sdk/releases/download/v0.1.0/pegase-extension-sdk-0.1.0.tgz
+npm install --save-dev https://github.com/PoongalOO/pegase-extension-sdk/releases/download/v0.2.0/pegase-extension-sdk-0.2.0.tgz
 ```
 
 L'interface d'une extension doit être livrée en fichiers statiques sans dépendance externe : regroupez votre code et
@@ -51,7 +51,8 @@ try {
 p.ajusterHauteur();                           // hauteur de l'iframe suivie automatiquement
 ```
 
-Autres fonctions : `permissions.possede()`, `fichiers.deposer(blob)` et `fichiers.lire(id)`, `projets.*`,
+Autres fonctions : `permissions.possede()`, `fichiers.deposer(blob)`, `fichiers.lire(id)` et `fichiers.adresse(id)`
+(image prête à afficher), `projets.*` (dont `publier`), `parcours.lire()` et `resultats.enregistrer()` (joueur),
 `evenements.lister()` et `evenements.acquitter()`, `ressources.lire(url)`, `naviguer(page, parametre)`,
 `message(niveau, texte)`, `titre(texte)`, `surDesactivation(rappel)`. Chaque appel est vérifié par le Core : permission
 accordée par un administrateur et droits de l'utilisateur.
@@ -78,3 +79,9 @@ Publier une version : mettre à jour `version` dans `package.json`, commit, éti
 ## Licence
 
 MIT, voir [LICENSE](LICENSE).
+
+## Versions
+
+- **0.2.0** : `parcours.lire()` rend le titre du parcours, `resultats.enregistrer()` accepte le pseudo du joueur,
+  `fichiers.adresse(id)` et `adresseData(blob)` pour afficher une image dans l'iframe.
+- **0.1.0** : première version.

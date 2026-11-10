@@ -76,3 +76,13 @@ test('notification de désactivation', () => {
   c.livrer({ pont: PONT, type: 'notification', nom: 'desactivee', donnees: {} });
   assert.equal(desactivee, true);
 });
+
+test('0.2.0 : pseudo du joueur transmis, titre du parcours', async () => {
+  const c = canal();
+  const pegase = new Pegase(c);
+  pegase.resultats.enregistrer({ score: 2, termine: true, pseudo: 'Léa' }).catch(() => {});
+  assert.deepEqual(c.envoyes.at(-1).parametres, { score: 2, termine: true, pseudo: 'Léa' });
+  const lecture = pegase.parcours.lire();
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: { code: 'ext-a2b3c4d5', titre: 'Les volcans', version: 1, contenu: {} } });
+  assert.equal((await lecture).titre, 'Les volcans');
+});

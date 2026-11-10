@@ -1,0 +1,37 @@
+# Publication d'une version du SDK : étiquette vX.Y.Z identique à la version de package.json ; archive npm (npm pack)
+# et son empreinte SHA-256 attachées à la release GitHub, installables par leur adresse
+name: Publication
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  publication:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Étiquette et version cohérentes
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          test "v$VERSION" = "$GITHUB_REF_NAME" || { echo "Étiquette $GITHUB_REF_NAME, package.json $VERSION"; exit 1; }
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npm pack
+          ARCHIVE="pegase-extension-sdk-$VERSION.tgz"
+          sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+          gh release create "$GITHUB_REF_NAME" "$ARCHIVE" "$ARCHIVE.sha256" \
+            --title "SDK des extensions de Pégase $VERSION" \
+            --notes "Installation : \`npm install --save-dev https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/$ARCHIVE\`. SHA-256 : \`$(cut -d' ' -f1 "$ARCHIVE.sha256")\`"

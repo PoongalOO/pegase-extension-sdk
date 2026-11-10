@@ -14,8 +14,11 @@ de son choix.
 
 ## Installation
 
+Chaque version est publiée comme archive npm attachée à sa release GitHub (empreinte d'intégrité inscrite dans le
+`package-lock.json` du projet qui l'installe) :
+
 ```sh
-npm install --save-dev github:PoongalOO/pegase-extension-sdk#v0.1.0
+npm install --save-dev https://github.com/PoongalOO/pegase-extension-sdk/releases/download/v0.1.0/pegase-extension-sdk-0.1.0.tgz
 ```
 
 L'interface d'une extension doit être livrée en fichiers statiques sans dépendance externe : regroupez votre code et
@@ -68,6 +71,9 @@ npm test        # compilation TypeScript puis tests (node --test)
 ```
 
 Les schémas de `schemas/` sont des copies de `docs/extensions/schemas/` du dépôt de Pégase.
+
+Publier une version : mettre à jour `version` dans `package.json`, commit, étiquette `vX.Y.Z` poussée ; le workflow
+**Publication** teste, construit l'archive npm et crée la release.
 
 ## Licence
 

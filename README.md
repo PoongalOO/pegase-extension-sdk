@@ -18,7 +18,7 @@ Chaque version est publiée comme archive npm attachée à sa release GitHub (em
 `package-lock.json` du projet qui l'installe) :
 
 ```sh
-npm install --save-dev https://github.com/PoongalOO/pegase-extension-sdk/releases/download/v0.3.0/pegase-extension-sdk-0.3.0.tgz
+npm install --save-dev https://github.com/PoongalOO/pegase-extension-sdk/releases/download/v0.4.0/pegase-extension-sdk-0.4.0.tgz
 ```
 
 L'interface d'une extension doit être livrée en fichiers statiques sans dépendance externe : regroupez votre code et
@@ -82,6 +82,9 @@ MIT, voir [LICENSE](LICENSE).
 
 ## Versions
 
+- **0.4.0** (Pégase 1.9.0) : parcours joués hors ligne par le lecteur (`contexte.horsLigne`),
+  `parcours.surPointDEntree(rappel)` (QR code d'une œuvre scanné pendant la partie), `parcours.lire()` rend les points
+  d'entrée. Joueur hors ligne : un seul module JavaScript (bundle), fichiers cités dans le HTML et le CSS seulement.
 - **0.3.0** (Pégase 1.9.0) : sons et vidéos (`fichiers.deposer(fichier, { progression })`, permission
   `fichiers:medias`, 15 Mo au plus), `fichiers.adresse(id)` rend une adresse signée et temporaire servie par le Core
   (lecture par plages, repli en adresse data: avec un Core plus ancien), `fichiers.adresseSignee`, `fichiers.lister`,

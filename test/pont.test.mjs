@@ -130,3 +130,13 @@ test('0.3.0 : progression de l\'envoi, adresse signée et repli data:, liste, qu
   pegase.projets.publier('P').catch(() => {});
   assert.deepEqual(c.envoyes.at(-1).parametres, { id: 'P' });
 });
+
+test('0.4.0 : point d\'entrée scanné pendant la partie', () => {
+  const c = canal();
+  const pegase = new Pegase(c);
+  const recus = [];
+  pegase.parcours.surPointDEntree((parametre) => recus.push(parametre));
+  c.livrer({ pont: PONT, type: 'notification', nom: 'parametre', donnees: { parametre: '5' } });
+  c.livrer({ pont: PONT, type: 'notification', nom: 'parametre', donnees: { parametre: null } });
+  assert.deepEqual(recus, ['5', null]);
+});

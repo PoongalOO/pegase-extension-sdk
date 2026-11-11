@@ -100,7 +100,7 @@
       "properties": {
         "pont": { "const": "pegase-pont/1" },
         "type": { "const": "notification" },
-        "nom": { "enum": ["contexte", "parametres", "desactivee", "progression"] },
+        "nom": { "enum": ["contexte", "parametres", "desactivee", "progression", "parametre"] },
         "donnees": { "type": "object" }
       }
     }

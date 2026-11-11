@@ -2,8 +2,8 @@
 
 Ce guide s'adresse aux développeuses et développeurs qui veulent faire installer leur extension sur
 [PégaseLab](https://pegaselab.org) ou sur un autre portail Pégase. Pour l'écrire : le README de ce SDK, et les
-exemples [Pégase Hello Extension](https://github.com/PoongalOO/pegase-extension-hello) (démonstration courte) et
-[Musée](https://github.com/PoongalOO/pegase-extension-musee) (espace de création complet).
+exemples [Pégase Hello Extension](https://github.com/PoongalOO/pegaselab-extension-hello) (démonstration courte) et
+[Musée](https://github.com/PoongalOO/pegaselab-extension-musee) (espace de création complet).
 
 Une extension n'est jamais installée automatiquement : un super administrateur du portail la relit, l'essaie, accorde
 ses permissions une à une et décide de l'ouvrir, à tous ou à certains comptes. Les utilisateurs de Pégase sont souvent

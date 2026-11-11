@@ -1,7 +1,7 @@
 # SDK des extensions de Pégase
 
 Bibliothèque TypeScript et outils en ligne de commande pour écrire des extensions de
-[Pégase](https://github.com/PoongalOO/pegase), sous licence **MIT** : une extension qui l'utilise peut avoir la licence
+[Pégase](https://github.com/PoongalOO/pegaselab), sous licence **MIT** : une extension qui l'utilise peut avoir la licence
 de son choix.
 
 - **Client du pont `pegase-pont/1`** : l'interface d'une extension tourne dans une iframe isolée (origine opaque, aucun
@@ -18,7 +18,7 @@ Chaque version est publiée comme archive npm attachée à sa release GitHub (em
 `package-lock.json` du projet qui l'installe) :
 
 ```sh
-npm install --save-dev https://github.com/PoongalOO/pegase-extension-sdk/releases/download/v0.4.0/pegase-extension-sdk-0.4.0.tgz
+npm install --save-dev https://github.com/PoongalOO/pegaselab-extension-sdk/releases/download/v0.4.0/pegase-extension-sdk-0.4.0.tgz
 ```
 
 L'interface d'une extension doit être livrée en fichiers statiques sans dépendance externe : regroupez votre code et

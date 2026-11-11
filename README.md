@@ -80,6 +80,11 @@ Publier une version : mettre à jour `version` dans `package.json`, commit, éti
 
 MIT, voir [LICENSE](LICENSE).
 
+## Proposer une extension
+
+Pour faire installer votre extension sur PégaseLab ou un autre portail Pégase : [CONTRIBUER.md](CONTRIBUER.md)
+(liste de vérification, formulaire « Proposer une extension », relecture et mises à jour).
+
 ## Versions
 
 - **0.4.0** (Pégase 1.9.0) : parcours joués hors ligne par le lecteur (`contexte.horsLigne`),

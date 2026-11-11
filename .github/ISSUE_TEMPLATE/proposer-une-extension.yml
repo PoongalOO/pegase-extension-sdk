@@ -1,0 +1,68 @@
+name: Proposer une extension
+description: Faire relire une extension pour l'installer sur un portail Pégase (PégaseLab)
+title: "Extension : "
+labels: ["proposition d'extension"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Avant d'envoyer, relisez la liste de vérification de [CONTRIBUER.md](../blob/main/CONTRIBUER.md).
+        N'indiquez ici aucune donnée personnelle d'utilisateurs ni aucun secret.
+  - type: input
+    id: depot
+    attributes:
+      label: Dépôt GitHub de l'extension
+      placeholder: https://github.com/editeur/mon-extension
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version proposée (release)
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: empreinte
+    attributes:
+      label: Empreinte SHA-256 de l'archive .pegext
+    validations:
+      required: true
+  - type: textarea
+    id: role
+    attributes:
+      label: À quoi sert l'extension, et pour qui ?
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Permissions demandées et pourquoi
+      description: Une ligne par permission, avec sa justification.
+    validations:
+      required: true
+  - type: textarea
+    id: donnees
+    attributes:
+      label: Données enregistrées
+      description: Documents, fichiers, résultats des joueurs ; ce qui est conservé et pourquoi.
+    validations:
+      required: true
+  - type: input
+    id: pegase
+    attributes:
+      label: Versions de Pégase essayées
+      placeholder: 1.12.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: engagements
+    attributes:
+      label: Engagements
+      options:
+        - label: Les contenus fournis avec l'extension sont libres de droits ou sous licence compatible.
+          required: true
+        - label: Le code source qui produit l'archive est public et l'archive est reproductible.
+          required: true
+        - label: L'extension ne demande aucun mot de passe et ne charge aucune ressource extérieure.
+          required: true

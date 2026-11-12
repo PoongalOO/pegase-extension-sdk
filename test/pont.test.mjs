@@ -131,6 +131,19 @@ test('0.3.0 : progression de l\'envoi, adresse signée et repli data:, liste, qu
   assert.deepEqual(c.envoyes.at(-1).parametres, { id: 'P' });
 });
 
+test('0.5.0 : dépublier, désinstaller des appareils', async () => {
+  const c = canal();
+  const pegase = new Pegase(c);
+  const depublie = pegase.projets.depublier('P');
+  assert.deepEqual([c.envoyes.at(-1).methode, c.envoyes.at(-1).parametres], ['projets.depublier', { id: 'P' }]);
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: true, resultat: { code: 'ext-a2b3c4d5', version: 2, publie: '', retrait: 'depublie' } });
+  assert.equal((await depublie).retrait, 'depublie');
+  const desinstalle = pegase.projets.desinstaller('P');
+  assert.deepEqual([c.envoyes.at(-1).methode, c.envoyes.at(-1).parametres], ['projets.desinstaller', { id: 'P' }]);
+  c.livrer({ pont: PONT, type: 'reponse', id: c.envoyes.at(-1).id, ok: false, erreur: { code: 'annule_par_utilisateur', message: 'Annulé.' } });
+  await assert.rejects(desinstalle, (e) => e.code === 'annule_par_utilisateur');
+});
+
 test('0.4.0 : point d\'entrée scanné pendant la partie', () => {
   const c = canal();
   const pegase = new Pegase(c);

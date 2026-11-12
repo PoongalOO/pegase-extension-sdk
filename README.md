@@ -87,6 +87,9 @@ Pour faire installer votre extension sur PégaseLab ou un autre portail Pégase 
 
 ## Versions
 
+- **0.5.0** (Pégase 1.16.0) : `projets.depublier(id)` (parcours plus téléchargeable ni jouable en ligne) et
+  `projets.desinstaller(id)` (en plus effacé des appareils qui l'ont gardé : lecteur web et PégaseLab), confirmés par le
+  Core ; `Publication.retrait` et `retire` ; une nouvelle publication rétablit le parcours, même code.
 - **0.4.0** (Pégase 1.9.0) : parcours joués hors ligne par le lecteur (`contexte.horsLigne`),
   `parcours.surPointDEntree(rappel)` (QR code d'une œuvre scanné pendant la partie), `parcours.lire()` rend les points
   d'entrée. Joueur hors ligne : un seul module JavaScript (bundle), fichiers cités dans le HTML et le CSS seulement.

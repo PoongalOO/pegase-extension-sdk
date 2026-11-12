@@ -88,7 +88,16 @@ export interface Publication {
   adresse?: string;
   /** page des QR codes du parcours (depuis Pégase 1.9.0) */
   codes_qr?: string;
+  /**
+   * Parcours retiré par son auteur jusqu'à sa prochaine publication (depuis Pégase 1.16.0) : « depublie », plus
+   * téléchargeable ni jouable en ligne ; « desinstalle », en plus effacé des appareils qui l'ont gardé
+   */
+  retrait?: Retrait;
+  /** date du retrait */
+  retire?: string;
 }
+
+export type Retrait = 'depublie' | 'desinstalle';
 
 export interface Projet<T = unknown> {
   id: string;
@@ -123,6 +132,7 @@ export type Methode =
   | 'stockage.lire' | 'stockage.lister' | 'stockage.ecrire' | 'stockage.supprimer'
   | 'fichiers.deposer' | 'fichiers.lire' | 'fichiers.adresse' | 'fichiers.lister' | 'fichiers.supprimer' | 'quota.lire'
   | 'projets.lister' | 'projets.lire' | 'projets.creer' | 'projets.modifier' | 'projets.supprimer' | 'projets.publier'
+  | 'projets.depublier' | 'projets.desinstaller'
   | 'parcours.lire' | 'resultats.lister' | 'resultats.enregistrer'
   | 'evenements.lister' | 'evenements.acquitter' | 'evenements.publier'
   | 'ressources.lire';

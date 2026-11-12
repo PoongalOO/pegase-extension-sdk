@@ -126,6 +126,16 @@ export class Pegase {
      */
     publier: (id: string, options: { acces?: Acces[] } = {}): Promise<Publication> =>
       this.pont.appeler('projets.publier', options.acces === undefined ? { id } : { id, acces: options.acces }),
+    /**
+     * Dépublier (Pégase 1.16.0) : le parcours ne peut plus être téléchargé ni joué en ligne ; les appareils qui l'ont
+     * gardé le jouent encore. Le Core demande confirmation ; une nouvelle publication le rétablit, même code
+     */
+    depublier: (id: string): Promise<Publication> => this.pont.appeler('projets.depublier', { id }),
+    /**
+     * Désinstaller des appareils (Pégase 1.16.0) : dépublié, et effacé du lecteur web et de PégaseLab qui l'ont gardé, à
+     * leur prochaine connexion. Le Core demande confirmation ; une nouvelle publication le rétablit, même code
+     */
+    desinstaller: (id: string): Promise<Publication> => this.pont.appeler('projets.desinstaller', { id }),
   };
 
   readonly parcours = {
